@@ -62,7 +62,7 @@ class _HomePageState extends State<HomePage> {
               FlatButton(
                   onPressed: () => Navigator.of(context).pop(),
                   child: Text(
-                    "Volver a la lista",
+                    "Volver a la post",
                     style: TextStyle(color: Colors.teal),
                   )),
               FlatButton(
@@ -164,13 +164,11 @@ class _HomePageState extends State<HomePage> {
           future: getMyPost(),
           builder: (context, AsyncSnapshot<List<Post>> snapshot) {
             if (!snapshot.hasData) {
-              return Center(child: CircularProgressIndicator());
+              return Center(child: CircularProgressIndicator(backgroundColor: Colors.teal,));
             }
-            //TODO Cambinor nombre de varible
+            final post = snapshot.data;
 
-            final lista = snapshot.data;
-
-            if (lista.length == 0) {
+            if (post.length == 0) {
               return Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
@@ -182,66 +180,73 @@ class _HomePageState extends State<HomePage> {
                 ),
               );
             }
-            lista.sort((a, b) => a.id.compareTo(b.id));
+            post.sort((a, b) => a.id.compareTo(b.id));
             return ListView.builder(
-              itemCount: lista.length,
+              itemCount: post.length,
               itemBuilder: (context, i) {
-                return _card(lista[i]);
+                return _card(post[i]);
               },
             );
           }),
     );
   }
 
-  Widget _card(Post lista) {
-    return Padding(
-      padding: const EdgeInsets.all(4.0),
-      child: Container(
-        height: 125.00,
-        //width: 100.00,
-        child: Card(
-          elevation: 10.0,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: Text(lista.id.toString()),
-              ),
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.all(4.0),
-                      child: Text(lista.title,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 2),
-                    ),
+  Widget _card(Post post) {
+    return new Card(
+      elevation: 5.0,
+      
+      child: new Column(
+        children: <Widget>[
 
-                    Divider(
-                      color:Colors.teal
-                    ),
-                     Padding(
-                      padding: const EdgeInsets.all(4.0),
-                      child: Text(lista.body,
-                         
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 2),
-                    ),
-                  ],
-                ),
-              ),
-              // Row(mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[
-              //   Text(lista.userId.toString()),
-              // ]),
-            ],
+          new Image(
+            image: AssetImage('assets/undraw_font_kwpk.png'),
+            fit: BoxFit.cover,
           ),
-        ),
+          new Container(
+            padding: const EdgeInsets.all(10.0),
+            child: Text(
+              post.body,
+              softWrap: true,
+            ),
+          ),
+          Divider(color: Colors.teal),
+          new Padding(
+             
+              padding: new EdgeInsets.all(
+                  7.0), 
+              child: new Row(
+
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  new FlatButton.icon(
+                    icon: const Icon(Icons.note,
+                        size: 18.0, color: Colors.teal),
+                    label:  Text(post.id.toString()),
+                    onPressed: () {
+                      print('Me encanta');
+                    },
+                  ),
+                  new FlatButton.icon(
+                    icon: const Icon(Icons.update,
+                        size: 18.0, color: Colors.orange),
+                    label: const Text('Editar'),
+                    onPressed: () {
+                      print('Comenta algo');
+                    },
+                  ),
+                  new FlatButton.icon(
+                    icon: const Icon(Icons.remove_circle,
+                        size: 18.0, color: Colors.redAccent),
+                    label: const Text('Borrar'),
+                    onPressed: () {
+                      print('Compartelo');
+                    },
+                  )
+                ],
+              ))
+        ],
       ),
     );
   }
+
 }
