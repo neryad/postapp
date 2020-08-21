@@ -7,4 +7,6 @@ import 'package:postapp/models/post_models.dart';
 Future<List<Post>> getMyPost() async {
   final response = await http.get(ApiUrl);
   print(response.body);
+
+  return allPostsFromJson(response.body);
 }

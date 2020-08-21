@@ -4,6 +4,16 @@ Post postFromJson(String str) => Post.fromJson(json.decode(str));
 
 String postToJson(Post data) => json.encode(data.toJson());
 
+List<Post> allPostsFromJson(String str) {
+  final jsonData = json.decode(str);
+  return new List<Post>.from(jsonData.map((x) => Post.fromJson(x)));
+}
+
+String allPostsToJson(List<Post> data) {
+  final dyn = new List<dynamic>.from(data.map((x) => x.toJson()));
+  return json.encode(dyn);
+}
+
 class Post {
     Post({
         this.userId,
