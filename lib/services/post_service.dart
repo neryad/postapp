@@ -17,3 +17,9 @@ Future createPost(Post post) async {
   print(response.body);
   return response.body;
 }
+
+Future deletePost(Post post) async {
+  final response = await http.delete(ApiUrl + post.id.toString(),
+      headers: {"Content-Type": "application/json"});
+  return response.body;
+}

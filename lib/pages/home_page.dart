@@ -4,6 +4,7 @@ import 'package:postapp/models/post_models.dart';
 import 'package:postapp/services/post_service.dart';
 
 import '../services/post_service.dart';
+import '../services/post_service.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key}) : super(key: key);
@@ -73,7 +74,7 @@ class _HomePageState extends State<HomePage> {
                     _subimt();
 
                     Navigator.of(context).pop();
-                    showSnack(context, 'Post : "${posttModel.title}" creado');
+                    showSnack(context, 'Post : ${posttModel.title} creado');
                   },
                   child: Text(
                     "Guardar",
@@ -184,14 +185,14 @@ class _HomePageState extends State<HomePage> {
             return ListView.builder(
               itemCount: posts.length,
               itemBuilder: (context, i) {
-                return _card(posts[i]);
+                return _card(posts[i], i);
               },
             );
           }),
     );
   }
 
-  Widget _card(Post post) {
+  Widget _card(Post post, int index) {
     return new Card(
       elevation: 5.0,
       child: new Column(
@@ -234,7 +235,11 @@ class _HomePageState extends State<HomePage> {
                         size: 18.0, color: Colors.redAccent),
                     label: const Text('Borrar'),
                     onPressed: () {
-                      print('Compartelo');
+                      deletePost(post);
+                      posts.removeAt(index);
+                      showSnack(context, 'Post : ${post.id} eliminado');
+                      print('Borrado');
+                      setState(() {});
                     },
                   )
                 ],
