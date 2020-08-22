@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:postapp/pages/home_page.dart';
-import 'package:postapp/services/post_service.dart';
 
 void main() {
   runApp(MyApp());

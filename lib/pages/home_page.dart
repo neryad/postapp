@@ -1,6 +1,9 @@
+import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:postapp/models/post_models.dart';
 import 'package:postapp/services/post_service.dart';
+
+import '../services/post_service.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key}) : super(key: key);
@@ -33,7 +36,7 @@ class _HomePageState extends State<HomePage> {
         ),
         body: SingleChildScrollView(
           padding: EdgeInsets.all(8.0),
-          child: _ListPosts(context),
+          child: _listPosts(context),
         ));
   }
 
@@ -69,7 +72,8 @@ class _HomePageState extends State<HomePage> {
                   onPressed: () {
                     _subimt();
 
-                    // Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                    showSnack(context, 'Post : "${posttModel.title}" creado');
                   },
                   child: Text(
                     "Guardar",
@@ -108,7 +112,6 @@ class _HomePageState extends State<HomePage> {
 
   Widget _postContent() {
     return TextFormField(
-      //  initialValue: posttModel.name,
       maxLength: 33,
       textCapitalization: TextCapitalization.sentences,
       textAlign: TextAlign.center,
@@ -122,13 +125,10 @@ class _HomePageState extends State<HomePage> {
       },
       decoration: InputDecoration(
         labelText: "Contenido",
-        //counterText: '',
         labelStyle: TextStyle(color: Colors.teal),
         focusedBorder: UnderlineInputBorder(
           borderSide: BorderSide(color: Colors.teal),
         ),
-        //hintText: 'Nombre artículo',
-        //hintStyle: TextStyle(color: Colors.teal),
       ),
     );
   }
@@ -137,26 +137,23 @@ class _HomePageState extends State<HomePage> {
     return (s == "") ? false : true;
   }
 
-  // this.userId,
-  //     this.id,
-  //     this.title,
-  //     this.body,
-
   void _subimt() {
     var it = posts.length;
     if (!formKey.currentState.validate()) return;
     formKey.currentState.save();
     var post = new Post(
       userId: 10,
-      //id,
+      //id: int.parse(newRadomId),
       title: posttModel.title,
       body: posttModel.body,
     );
     posts.insert(it, post);
+    createPost(post);
     formKey.currentState.reset();
+    //getMyPost();
   }
 
-  _ListPosts(BuildContext context) {
+  _listPosts(BuildContext context) {
     return Container(
       key: UniqueKey(),
       height: MediaQuery.of(context).size.height * .85,
@@ -164,11 +161,14 @@ class _HomePageState extends State<HomePage> {
           future: getMyPost(),
           builder: (context, AsyncSnapshot<List<Post>> snapshot) {
             if (!snapshot.hasData) {
-              return Center(child: CircularProgressIndicator(backgroundColor: Colors.teal,));
+              return Center(
+                  child: CircularProgressIndicator(
+                backgroundColor: Colors.teal,
+              ));
             }
-            final post = snapshot.data;
+            posts = snapshot.data;
 
-            if (post.length == 0) {
+            if (posts.length == 0) {
               return Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
@@ -180,11 +180,11 @@ class _HomePageState extends State<HomePage> {
                 ),
               );
             }
-            post.sort((a, b) => a.id.compareTo(b.id));
+            posts.sort((a, b) => b.id.compareTo(a.id));
             return ListView.builder(
-              itemCount: post.length,
+              itemCount: posts.length,
               itemBuilder: (context, i) {
-                return _card(post[i]);
+                return _card(posts[i]);
               },
             );
           }),
@@ -194,10 +194,8 @@ class _HomePageState extends State<HomePage> {
   Widget _card(Post post) {
     return new Card(
       elevation: 5.0,
-      
       child: new Column(
         children: <Widget>[
-
           new Image(
             image: AssetImage('assets/undraw_font_kwpk.png'),
             fit: BoxFit.cover,
@@ -211,17 +209,14 @@ class _HomePageState extends State<HomePage> {
           ),
           Divider(color: Colors.teal),
           new Padding(
-             
-              padding: new EdgeInsets.all(
-                  7.0), 
+              padding: new EdgeInsets.all(7.0),
               child: new Row(
-
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   new FlatButton.icon(
-                    icon: const Icon(Icons.note,
-                        size: 18.0, color: Colors.teal),
-                    label:  Text(post.id.toString()),
+                    icon:
+                        const Icon(Icons.note, size: 18.0, color: Colors.teal),
+                    label: Text(post.id.toString()),
                     onPressed: () {
                       print('Me encanta');
                     },
@@ -249,4 +244,17 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void showSnack(BuildContext context, String msg) {
+    Flushbar(
+      //title: 'This action is prohibited',
+      message: msg,
+      icon: Icon(
+        Icons.info_outline,
+        size: 28,
+        color: Colors.teal,
+      ),
+      leftBarIndicatorColor: Colors.teal,
+      duration: Duration(seconds: 2),
+    )..show(context);
+  }
 }
