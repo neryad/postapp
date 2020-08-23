@@ -18,8 +18,16 @@ Future createPost(Post post) async {
   return response.body;
 }
 
+Future updatePost(Post post) async {
+  final response = await http.put(ApiUrl + post.id.toString(),
+      headers: {"Content-Type": "application/json"}, body: json.encode(post));
+  print(response.body);
+  return response.body;
+}
+
 Future deletePost(Post post) async {
   final response = await http.delete(ApiUrl + post.id.toString(),
       headers: {"Content-Type": "application/json"});
+  print(response.body);
   return response.body;
 }

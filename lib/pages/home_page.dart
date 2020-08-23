@@ -2,6 +2,7 @@ import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:postapp/models/post_models.dart';
 import 'package:postapp/services/post_service.dart';
+import 'package:postapp/utilis/utils.dart' as utils;
 
 import '../services/post_service.dart';
 import '../services/post_service.dart';
@@ -14,7 +15,7 @@ class HomePage extends StatefulWidget {
 }
 
 final formKey = GlobalKey<FormState>();
-final editFormKey = GlobalKey<FormState>();
+final editKey = GlobalKey<FormState>();
 
 List<Post> posts = [];
 Post posttModel = new Post();
@@ -74,7 +75,8 @@ class _HomePageState extends State<HomePage> {
                     _subimt();
 
                     Navigator.of(context).pop();
-                    showSnack(context, 'Post : ${posttModel.title} creado');
+                    utils.showSnack(
+                        context, 'Post : ${posttModel.title} creado');
                   },
                   child: Text(
                     "Guardar",
@@ -92,7 +94,7 @@ class _HomePageState extends State<HomePage> {
       textAlign: TextAlign.center,
       onSaved: (value) => posttModel.title = value,
       validator: (value) {
-        if (isEmpty(value)) {
+        if (utils.isEmpty(value)) {
           return null;
         } else {
           return "Llenar Campos";
@@ -100,13 +102,10 @@ class _HomePageState extends State<HomePage> {
       },
       decoration: InputDecoration(
         labelText: "Titulo",
-        //counterText: '',
         labelStyle: TextStyle(color: Colors.teal),
         focusedBorder: UnderlineInputBorder(
           borderSide: BorderSide(color: Colors.teal),
         ),
-        //hintText: 'Nombre artículo',
-        //hintStyle: TextStyle(color: Colors.teal),
       ),
     );
   }
@@ -118,7 +117,7 @@ class _HomePageState extends State<HomePage> {
       textAlign: TextAlign.center,
       onSaved: (value) => posttModel.body = value,
       validator: (value) {
-        if (isEmpty(value)) {
+        if (utils.isEmpty(value)) {
           return null;
         } else {
           return "Llenar Campos";
@@ -132,10 +131,6 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
-  }
-
-  bool isEmpty(String s) {
-    return (s == "") ? false : true;
   }
 
   void _subimt() {
@@ -152,6 +147,108 @@ class _HomePageState extends State<HomePage> {
     createPost(post);
     formKey.currentState.reset();
     //getMyPost();
+  }
+
+  void _editAlert(BuildContext context, int index) {
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("Editar Post"),
+            content: Form(
+              key: editKey,
+              child: SingleChildScrollView(
+                child: Container(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      _editTitle(index),
+                      _editContent(index),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            actions: <Widget>[
+              FlatButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text(
+                    "Volver a la post",
+                    style: TextStyle(color: Colors.teal),
+                  )),
+              FlatButton(
+                  onPressed: () {
+                    _editDubimt(index);
+                    Navigator.of(context).pop();
+                    utils.showSnack(
+                        context, 'Post : ${posts[index].title} actualizado');
+                  },
+                  child: Text(
+                    "Guardar",
+                    style: TextStyle(color: Colors.teal),
+                  )),
+            ],
+          );
+        });
+  }
+
+  Widget _editTitle(int index) {
+    return TextFormField(
+      maxLength: 33,
+      initialValue: posts[index].title,
+      textCapitalization: TextCapitalization.sentences,
+      textAlign: TextAlign.center,
+      onSaved: (value) => posts[index].title = value,
+      validator: (value) {
+        if (utils.isEmpty(value)) {
+          return null;
+        } else {
+          return "Llenar Campos";
+        }
+      },
+      decoration: InputDecoration(
+        labelText: "Titulo",
+        labelStyle: TextStyle(color: Colors.teal),
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Colors.teal),
+        ),
+      ),
+    );
+  }
+
+  Widget _editContent(int index) {
+    return TextFormField(
+      maxLength: 33,
+      initialValue: posts[index].body,
+      textCapitalization: TextCapitalization.sentences,
+      textAlign: TextAlign.center,
+      onSaved: (value) => posts[index]..body = value,
+      validator: (value) {
+        if (utils.isEmpty(value)) {
+          return null;
+        } else {
+          return "Llenar Campos";
+        }
+      },
+      decoration: InputDecoration(
+        labelText: "Contenido",
+        labelStyle: TextStyle(color: Colors.teal),
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Colors.teal),
+        ),
+      ),
+    );
+  }
+
+  void _editDubimt(int index) {
+    editKey.currentState.save();
+    updatePost(posts[index]);
+  }
+
+  void _deleteDubimt(int index) {
+    //editKey.currentState.save();
+    deletePost(posts[index]);
   }
 
   _listPosts(BuildContext context) {
@@ -219,7 +316,7 @@ class _HomePageState extends State<HomePage> {
                         const Icon(Icons.note, size: 18.0, color: Colors.teal),
                     label: Text(post.id.toString()),
                     onPressed: () {
-                      print('Me encanta');
+                      print('Id del post');
                     },
                   ),
                   new FlatButton.icon(
@@ -227,7 +324,9 @@ class _HomePageState extends State<HomePage> {
                         size: 18.0, color: Colors.orange),
                     label: const Text('Editar'),
                     onPressed: () {
-                      print('Comenta algo');
+                      _editAlert(context, index);
+
+                      print('Editado');
                     },
                   ),
                   new FlatButton.icon(
@@ -235,9 +334,9 @@ class _HomePageState extends State<HomePage> {
                         size: 18.0, color: Colors.redAccent),
                     label: const Text('Borrar'),
                     onPressed: () {
-                      deletePost(post);
+                      _deleteDubimt(index);
                       posts.removeAt(index);
-                      showSnack(context, 'Post : ${post.id} eliminado');
+                      utils.showSnack(context, 'Post : ${post.id} eliminado');
                       print('Borrado');
                       setState(() {});
                     },
@@ -247,19 +346,5 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
     );
-  }
-
-  void showSnack(BuildContext context, String msg) {
-    Flushbar(
-      //title: 'This action is prohibited',
-      message: msg,
-      icon: Icon(
-        Icons.info_outline,
-        size: 28,
-        color: Colors.teal,
-      ),
-      leftBarIndicatorColor: Colors.teal,
-      duration: Duration(seconds: 2),
-    )..show(context);
   }
 }
